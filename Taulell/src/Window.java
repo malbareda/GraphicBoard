@@ -23,11 +23,6 @@ public class Window extends JFrame {
 	 * TODO Posar opció de musica i opció de carregarli un jPanel de pantalla d'intro?
 	 */
 
-	/*
-	 * TODO No se si fer que Board sigui privat i l'usuari només interactui amb
-	 * Finestra o tenir-ho separat. Hm...
-	 */
-
 	private Board board;
 	private Board board2;
 	private boolean secondBoard=false;
@@ -151,7 +146,6 @@ public class Window extends JFrame {
 	}
 
 	
-	//Integracio del teclat. Ara pot detectar pulsacions de tecles sense necessitat de l'intro i l'escanner.
 	/**
 	 * Keyboard integration. Detects pressed keys and returns them as a set.
 	 */

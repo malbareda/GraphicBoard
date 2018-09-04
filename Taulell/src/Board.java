@@ -15,27 +15,30 @@ import javax.swing.*;
  */
 
 /**
- * Graphical User Interface that converts a given matrix into a graphical board. 
- * This class also provides methods to manipulate that board and set how the graphics are displayed.
- * This interface can work with either colors, text, or defined image sprites.
- * Other options as displaying backgrounds, overdraws, or changing the size of individual cells are provided.
+ * Graphical User Interface that converts a given matrix into a graphical board.
+ * This class also provides methods to manipulate that board and set how the
+ * graphics are displayed. This interface can work with either colors, text, or
+ * defined image sprites. Other options as displaying backgrounds, overdraws, or
+ * changing the size of individual cells are provided.
  * 
  * @author Marc Albareda
  *
  */
 public class Board extends JPanel {
 
-	SquareRx2[][] squares;
-	SquareRx2[][] oversquares;
+	Square[][] squares;
+	Square[][] oversquares;
 	private int padding = 20; // padding is the margin that the board will have relative to the window
 	private int rows = -1;
 	private int cols = -1;
 	private int[][] matrix;
 	private int[][] overdraw;
-	private int[][][] succesiveOverdraw;
+	private int[][][] succesiveOverdraw; // Consider it as an array of matrixes that will be overdrawn over the main
+											// matrix, used if there are different layers to be printed.
 	private boolean init = false;
 	private boolean change = false;
-	private boolean actcolors = false; // acts are booleans that activate each utility provided. If it's true it will activate it, if false it won't.
+	private boolean actcolors = false; // acts are booleans that activate each utility provided. If it's true it will
+										// activate it, if false it won't.
 	private boolean actborder = false;
 	private int borderColor = 0x8cc8a0;
 	private int colorbackground = 0x0000ff;
@@ -47,15 +50,22 @@ public class Board extends JPanel {
 	private boolean actimgbackground = false;
 	private String imgbackground;
 	private int[] colors = { 0x0000FF, 0x00FF00, 0xFFFF00, 0xFF0000, 0xFF00FF, 0x00FFFF, 0x000000, 0xFFFFFF, 0xFF8000,
-			0x7F00FF };// RGB color pallete for each integer. In the array each position relates to a number in the matrix (first position will be the color of number 0 in the matrix, etc.)
+			0x7F00FF };// RGB color pallete for each integer. In the array each position relates to a
+						// number in the matrix (first position will be the color of number 0 in the
+						// matrix, etc.)
 	private boolean acttext = false;
-	private String[] text = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "*" }; //text written in each position relative to the number in the matrix
+	private String[] text = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "*" }; // text written in each position
+																					// relative to the number in the
+																					// matrix
 	private int[] colortext = { 0x0000FF, 0x00FF00, 0xFFFF00, 0xFF0000, 0xFF00FF, 0x00FFFF, 0x000000, 0xFFFFFF,
-			0xFF8000, 0x7F00FF }; // en quin color s'ha d'escriure en cada
-									// casella en base al nombre
+			0xFF8000, 0x7F00FF }; // RBG color pallete for the color of the text. Only if text is enabled.
 	private boolean actsprites = false;
 	private String[] sprites = { "Link1.gif", "Iron_Axe.png", "Iron_Lance.png", "Iron_Sword.png", "Lightning.png",
-			"Vulnerary.png", "Vulnerary.png", "Vulnerary.png", "Vulnerary.png", "Vulnerary.png" }; //path of the image displayed in each cell relative to the number in the matrix
+			"Vulnerary.png", "Vulnerary.png", "Vulnerary.png", "Vulnerary.png", "Vulnerary.png" }; // path of the image
+																									// displayed in each
+																									// cell relative to
+																									// the number in the
+																									// matrix
 	private Font font = new Font("SansSerif", Font.PLAIN, 22);
 
 	private int mouseRow = -1; // row of last mouse click
@@ -69,10 +79,9 @@ public class Board extends JPanel {
 	}
 
 	// Drawing methods.
-	 
 
 	/**
-	 * paints the matrix on the board. 
+	 * Inherited method from AWT, paints the matrix on the board.
 	 */
 	protected void paintComponent(Graphics g) {
 
@@ -100,16 +109,18 @@ public class Board extends JPanel {
 				}
 				g2.drawImage(img, (int) 0, (int) 0, (int) (getWidth()), (int) (getHeight()), 0, 0, img.getWidth(),
 						img.getHeight(), null);
-				///This starts drawing over the corner. Change the zero values for centered image.
+				/// This starts drawing over the corner. Change the zero values for centered
+				/// image.
 
 			}
-			//Draw every cell individually
+			// Draw every cell individually
 			g2.setPaint(Color.blue);
 			g2.setFont(font);
 			for (int i = 0; i < rows; i++) {
 				for (int j = 0; j < cols; j++) {
-					squares[i][j].draw(g2, matrix[i][j], actcolors, colors, actborder, borderColor, colorbackground, acttext, text,
-							colortext, actsprites, sprites, actimgbackground, actfreedraw, freedrawx, freedrawy);
+					squares[i][j].draw(g2, matrix[i][j], actcolors, colors, actborder, borderColor, colorbackground,
+							acttext, text, colortext, actsprites, sprites, actimgbackground, actfreedraw, freedrawx,
+							freedrawy);
 				}
 			}
 			if (actoverdraw) {
@@ -140,9 +151,9 @@ public class Board extends JPanel {
 	/**
 	 * Deletes anything overdrawn on the board.
 	 */
-	public void borraOverdraw() {
-		int[][][] borra = { { { 0 } } };
-		this.overdraw(borra);
+	public void delOverdraw() {
+		int[][][] delete = { { { 0 } } };
+		this.overdraw(delete);
 	}
 
 	/**
@@ -150,29 +161,33 @@ public class Board extends JPanel {
 	 */
 	private void initSquares() {
 
-		squares = new SquareRx2[rows][cols];
+		squares = new Square[rows][cols];
 		int w = getWidth();
 		int h = getHeight();
-		double xInc = (double) (w - 2 * padding) / cols; //Each cell will have the same size. Total width/number of squares
+		double xInc = (double) (w - 2 * padding) / cols; // Each cell will have the same size. Total width/number of
+															// squares
 		double yInc = (double) (h - 2 * padding) / rows;
 		for (int i = 0; i < rows; i++) {
 			double y = padding + i * yInc;
 			for (int j = 0; j < cols; j++) {
 				double x = padding + j * xInc;
 				Rectangle2D.Double r = new Rectangle2D.Double(x, y, xInc, yInc);
-				squares[i][j] = new SquareRx2(i, j, r, x, y, xInc, yInc, this);
+				squares[i][j] = new Square(i, j, r, x, y, xInc, yInc, this);
 			}
 		}
 	}
 
 	/**
 	 * initializes an overdraw matrix if required
-	 * @param fil number of rows
-	 * @param col number of cols
+	 * 
+	 * @param fil
+	 *            number of rows
+	 * @param col
+	 *            number of cols
 	 */
 	private void initoverSquares(int fil, int col) {
 
-		oversquares = new SquareRx2[fil][col];
+		oversquares = new Square[fil][col];
 		int w = getWidth();
 		int h = getHeight();
 		double xInc = (double) (w - 2 * padding) / col;
@@ -182,7 +197,7 @@ public class Board extends JPanel {
 			for (int j = 0; j < col; j++) {
 				double x = padding + j * xInc;
 				Rectangle2D.Double r = new Rectangle2D.Double(x, y, xInc, yInc);
-				oversquares[i][j] = new SquareRx2(i, j, r, x, y, xInc, yInc, this);
+				oversquares[i][j] = new Square(i, j, r, x, y, xInc, yInc, this);
 			}
 		}
 	}
@@ -198,12 +213,16 @@ public class Board extends JPanel {
 	};
 
 	/**
-	 * Public draw method. This is the method called by the user and draws the matrix received
-	 * @param int matrix to be drawn. It will draw as a board using the options received
+	 * Public draw method. This is the method called by the user and draws the
+	 * matrix received
+	 * 
+	 * @param int
+	 *            matrix to be drawn. It will draw as a board using the options
+	 *            received
 	 */
 	public void draw(int[][] a) {
 		this.matrix = a;
-		if (rows != a.length || cols != a[0].length) { //if board size is changed on runtime...
+		if (rows != a.length || cols != a[0].length) { // if board size is changed on runtime...
 			rows = a.length;
 			cols = a[0].length;
 			change = true;
@@ -255,23 +274,22 @@ public class Board extends JPanel {
 			mouseCol = c;
 			currentMouseRow = f;
 			currentMouseCol = c;
-			/*squares[f][c].mouseClick();
-			boolean isSelected = squares[f][c].isSelected();
-			squares[f][c].setSelected(!isSelected);
-			repaint();
-			*/
+			/*
+			 * Old method. squares[f][c].mouseClick(); boolean isSelected =
+			 * squares[f][c].isSelected(); squares[f][c].setSelected(!isSelected);
+			 * repaint();
+			 */
 		}
 	};
 
+	/**
+	 * Check whether the clicked point is in the matrix grid.
+	 */
 	private boolean isInGrid(Point p) {
 		Rectangle r = getBounds();
 		r.grow(-padding, -padding);
 		return r.contains(p);
 	}
-
-
-
-	
 
 	/**
 	 * Getters & Setters. AutoGenerated
@@ -494,24 +512,26 @@ public class Board extends JPanel {
 	}
 
 	/**
-	 * get the row of the cell last clicked. Returns -1 if no cell was clicked since last check.
+	 * get the row of the cell last clicked. Returns -1 if no cell was clicked since
+	 * last check.
 	 */
 	public int getCurrentMouseRow() {
 		int tmp = currentMouseRow;
 		currentMouseRow = -1;
 		return tmp;
-		
+
 	}
 
 	/**
-	 * get the column of the cell last clicked. Returns -1 if no cell was clicked since last check.
+	 * get the column of the cell last clicked. Returns -1 if no cell was clicked
+	 * since last check.
 	 */
 	public int getCurrentMouseCol() {
 		int tmp = currentMouseCol;
 		currentMouseCol = -1;
 		return tmp;
 	}
-	
+
 	public MouseListener getMl() {
 		return ml;
 	}
@@ -523,9 +543,10 @@ public class Board extends JPanel {
 }
 
 /**
- * Class representing every cell on the Board. Not meant to be directly interacted by the user.
+ * Class representing every cell on the Board. Not meant to be directly
+ * interacted by the user.
  */
-class SquareRx2 {
+class Square {
 	private final int row;
 	private final int col;
 	private int value;
@@ -537,7 +558,7 @@ class SquareRx2 {
 
 	Rectangle2D.Double rect;
 
-	public SquareRx2(int f, int c, Rectangle2D.Double rect, double e, double d, double a, double b, Board taulell) {
+	public Square(int f, int c, Rectangle2D.Double rect, double e, double d, double a, double b, Board taulell) {
 		row = f;
 		col = c;
 		x = e;
@@ -547,9 +568,10 @@ class SquareRx2 {
 		this.rect = rect;
 
 	}
-	
+
 	/**
-	 * Draw every cell on an overdraw matrix. Overdraw matrixes are those drawn over the main one. They are for sprites only.
+	 * Draw every cell on an overdraw matrix. Overdraw matrixes are those drawn over
+	 * the main one. They are for sprites only.
 	 */
 	public void overdraw(Graphics2D g2, int value, String[] overimatges, boolean actfreedraw, double[] freedrawx,
 			double[] freedrawy) {
@@ -566,7 +588,8 @@ class SquareRx2 {
 					g2.drawImage(img, (int) x, (int) y, (int) (x + xInc), (int) (y + yInc), 0, 0, img.getWidth(),
 							img.getHeight(), null);
 				}
-			} catch (IOException e) {
+			} catch (IOException e) { // almost every error is due to the image not being included on the project
+										// folder
 				System.out.println("Error on image " + overimatges[value] + " value: " + value);
 			}
 		}
@@ -600,7 +623,7 @@ class SquareRx2 {
 		}
 
 		if (actimatges) {
-			if (!(imatges[value].equals(""))) {  // An empty string represents no image (or transparency)
+			if (!(imatges[value].equals(""))) { // An empty string represents no image (or transparency)
 				BufferedImage img = null;
 				try {
 					img = ImageIO.read(new File(imatges[value]));
@@ -611,9 +634,10 @@ class SquareRx2 {
 								img.getWidth(), img.getHeight(), null);
 					} else {
 
-						g2.drawImage(img, (int) x, (int) y, (int) (x + xInc), (int) (y + yInc), 0, 0,
-								img.getWidth(), img.getHeight(), null);
-						// Poseu y+3 en el segon parametre si voleu que la imatge no comenci sobre la mateixa linea
+						g2.drawImage(img, (int) x, (int) y, (int) (x + xInc), (int) (y + yInc), 0, 0, img.getWidth(),
+								img.getHeight(), null);
+						// /This starts drawing over the corner. Change the first two parameters for
+						// centered image.
 					}
 
 				} catch (Exception e) {
@@ -626,30 +650,22 @@ class SquareRx2 {
 		if (actlletres) {
 			Color inside = new Color(colorlletres[value]);
 			g2.setPaint(inside);
-			g2.drawString(lletres[value], (int) (x + xInc / 2), (int) (y + yInc - 5));
-			/// El -5 es per donar un pixel de marge. Lo normal seria pensar que
-			/// el punt que
-			/// li dones es el punt superior esquerra de la lletra, pero no, es
-			/// el punt
-			/// INFERIOR esquerra.
-			/// Si la font es gran acaba menjant-se el borde superior. Per aixo
-			/// el -5,
-			/// perque comenci abaix amb una mica de marge. Cutre cutre.
+			int padding = 5;
+			g2.drawString(lletres[value], (int) (x + xInc / 2), (int) (y + yInc - padding));
+			// On drawString the starting point is not the upper left, but the bottom left
+			// On bigger fonts that means that if centered will go over the top
+			// modify the padding value until it is centered according to your square size }
 		}
+
+		// Old Mouse processing, before adding listeners
+		/*
+		 * public void mouseClick() { // System.out.println("SQUARE[row:" + fil +
+		 * ", col:" + col + ", value:" // + value + "]"); t.setMousefil(fil);
+		 * t.setMousecol(col); t.setActualMousefil(fil); t.setActualMousecol(col);
+		 * 
+		 * // si vols que les teves opcions vagin per ratolí, a partir d'aquesta //
+		 * funció hauries de cridar una funcio estatica de la TEVA classe. També // pots
+		 * consultar les variables mitjançant els getters de mosuefil y // mousecol }
+		 */
 	}
-
-	//Antic mètode de processament del ratolí. Deprecat a la versió 1.3
-	/*public void mouseClick() {
-		// System.out.println("SQUARE[row:" + fil + ", col:" + col + ", value:"
-		// + value + "]");
-		t.setMousefil(fil);
-		t.setMousecol(col);
-		t.setActualMousefil(fil);
-		t.setActualMousecol(col);
-
-		// si vols que les teves opcions vagin per ratolí, a partir d'aquesta
-		// funció hauries de cridar una funcio estatica de la TEVA classe. També
-		// pots consultar les variables mitjançant els getters de mosuefil y
-		// mousecol
-	}*/
 }

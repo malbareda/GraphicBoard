@@ -118,7 +118,7 @@ public class Test {
 
 		sc.nextLine();
 		
-		t.borraOverdraw();
+		t.delOverdraw();
 		
 		sc.nextLine();
 
@@ -204,6 +204,7 @@ public class Test {
 		System.out.println("cas 8: Doble finestra");
 		Board t2 = new Board();
 		Window f2 = new Window(t, t2);
+		t.delOverdraw();
 		t.setActcolors(true);
 		t.setActsprites(false);
 		t.setActtext(false);
